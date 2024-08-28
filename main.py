@@ -4,6 +4,8 @@ import os
 from analyzers.analyzer_manager import analyze_directory, analyze_file
 from reports.html_report import HTMLReport
 from reports.json_report import JSONReport
+from reports.markdown_report import MarkdownReport
+from reports.pdf_report import PDFReport
 from utils.config_loader import load_config
 from utils.logger import setup_logging
 
@@ -12,6 +14,8 @@ def generate_report(report_type, analysis_results, file_name):
     report_map = {
         "html": HTMLReport,
         "json": JSONReport,
+        'markdown': MarkdownReport,
+        'pdf': PDFReport
     }
 
     report_class = report_map.get(report_type)
@@ -68,7 +72,7 @@ def main():
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
     input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
-    report_type = "json"
+    report_type = "markdown"
 
     try:
         if os.path.isdir(input_path):
