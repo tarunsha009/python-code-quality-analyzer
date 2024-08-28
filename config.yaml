@@ -13,3 +13,6 @@ analyzers:
   flake8: true
   bandit: true
   mypy: true
+  safety: true
+  isort: true
+  vulture: true

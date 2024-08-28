@@ -68,11 +68,23 @@ def main():
         from analyzers.mypy_analyzer import MyPyAnalyzer
         analyzers['mypy'] = MyPyAnalyzer()
 
+    if config['analyzers'].get('safety', True):
+        from analyzers.safety_analyzer import SafetyAnalyzer
+        analyzers['safety'] = SafetyAnalyzer()
+
+    if config['analyzers'].get('isort', True):
+        from analyzers.isort_analyzer import IsortAnalyzer
+        analyzers['isort'] = IsortAnalyzer()
+
+    if config['analyzers'].get('vulture', True):
+        from analyzers.vulture_analyzer import VultureAnalyzer
+        analyzers['vulture'] = VultureAnalyzer()
+
     analysis_results = {}
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
     input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
-    report_type = "markdown"
+    report_type = "html"
 
     try:
         if os.path.isdir(input_path):

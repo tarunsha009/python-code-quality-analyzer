@@ -6,3 +6,6 @@ pytest
 PyYAML
 mypy
 fpdf2
+safety
+isort
+vulture
