@@ -110,13 +110,16 @@ class HTMLReport(Report):
                             f"<tr><td>Isort</td><td class='bad center'>Issues</td><td class='center'>Issues found</td><td>Issues found in import sorting.</td></tr>")
 
                 elif analyzer_name == "vulture":
-                    if "No dead code" in result:
+                    total_issues = sum(1 for result in self.analysis_results.values() if result.strip())
+
+                    if total_issues == 0:
                         f.write(
                             f"<tr><td>Vulture</td><td class='good center'>Good</td><td class='center'>0</td><td>No dead code found.</td></tr>")
                     else:
-                        issue_count = len(result.splitlines())
                         f.write(
-                            f"<tr><td>Vulture</td><td class='bad center'>Issues</td><td class='center'>{issue_count}</td><td>Potential dead code found.</td></tr>")
+                            f"<tr><td>Vulture</td><td class='bad center'>Issues</td><td class='center'>{total_issues}</td><td>Potential dead code found.</td></tr>")
+
+                    f.write("<h2>Vulture Results</h2>")
 
             f.write("</table></div>")
 
@@ -162,6 +165,42 @@ class HTMLReport(Report):
                                     f"<strong>More Info:</strong> <a href='{ignored['more_info_url']}'>Link</a><br><br>")
                     except json.JSONDecodeError:
                         f.write(result)
+
+                elif analyzer_name == "isort":
+                    if "No issues found" in result:
+                        f.write(
+                            f"<tr><td>Isort</td><td class='good center'>Good</td><td class='center'>0</td><td>Imports are correctly sorted.</td></tr>")
+                    else:
+                        f.write(
+                            f"<tr><td>Isort</td><td class='bad center'>Issues</td><td class='center'>Issues found</td><td>Issues found in import sorting.</td></tr>")
+
+                        # Displaying detailed diff in a more readable format
+                        f.write(f"<h2>Isort Results</h2>")
+                        f.write("<pre style='background-color: #f9f9f9; padding: 10px; border-radius: 5px;'>")
+
+                        # Splitting the diff output into lines and formatting each line
+                        for line in result.splitlines():
+                            if line.startswith("---") or line.startswith("+++"):
+                                f.write(f"<span style='color: #005cc5;'>{line}</span><br>")
+                            elif line.startswith("-"):
+                                f.write(f"<span style='color: red;'>{line}</span><br>")
+                            elif line.startswith("+"):
+                                f.write(f"<span style='color: green;'>{line}</span><br>")
+                            else:
+                                f.write(f"{line}<br>")
+
+                        f.write("</pre>")
+
+                elif analyzer_name == "vulture":
+                    for file_path, vulture_output in self.analysis_results.items():
+                        vulture_output = vulture_output.strip()
+                        if vulture_output:
+                            f.write(f"<h3>{file_path}</h3>")
+                            f.write("<pre class='issue'>")
+                            # Split the string by new lines and write each line to the HTML
+                            for line in vulture_output.splitlines():
+                                f.write(f"{line}<br>")
+                            f.write("</pre>")
 
                 else:
                     f.write(result)

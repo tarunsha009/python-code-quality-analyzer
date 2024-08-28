@@ -52,29 +52,29 @@ def main():
 
     analyzers = {}
 
-    # if config['analyzers']['pylint']:
-    #     from analyzers.pylint_analyzer import PylintAnalyzer
-    #     analyzers['pylint'] = PylintAnalyzer()
-    #
-    # if config['analyzers']['flake8']:
-    #     from analyzers.flake8_analyzer import Flake8Analyzer
-    #     analyzers['flake8'] = Flake8Analyzer()
-    #
-    # if config['analyzers'].get('bandit', True):  # Add Bandit support by default
-    #     from analyzers.bandit_analyzer import BanditAnalyzer
-    #     analyzers['bandit'] = BanditAnalyzer()
-    #
-    # if config['analyzers'].get('mypy', True):  # Add mypy support by default
-    #     from analyzers.mypy_analyzer import MyPyAnalyzer
-    #     analyzers['mypy'] = MyPyAnalyzer()
+    if config['analyzers']['pylint']:
+        from analyzers.pylint_analyzer import PylintAnalyzer
+        analyzers['pylint'] = PylintAnalyzer()
+
+    if config['analyzers']['flake8']:
+        from analyzers.flake8_analyzer import Flake8Analyzer
+        analyzers['flake8'] = Flake8Analyzer()
+
+    if config['analyzers'].get('bandit', True):  # Add Bandit support by default
+        from analyzers.bandit_analyzer import BanditAnalyzer
+        analyzers['bandit'] = BanditAnalyzer()
+
+    if config['analyzers'].get('mypy', True):  # Add mypy support by default
+        from analyzers.mypy_analyzer import MyPyAnalyzer
+        analyzers['mypy'] = MyPyAnalyzer()
 
     if config['analyzers'].get('isort', True):
         from analyzers.isort_analyzer import IsortAnalyzer
         analyzers['isort'] = IsortAnalyzer()
 
-    # if config['analyzers'].get('vulture', True):
-    #     from analyzers.vulture_analyzer import VultureAnalyzer
-    #     analyzers['vulture'] = VultureAnalyzer()
+    if config['analyzers'].get('vulture', True):
+        from analyzers.vulture_analyzer import VultureAnalyzer
+        analyzers['vulture'] = VultureAnalyzer()
 
     analysis_results = {}
 
