@@ -52,45 +52,55 @@ def main():
 
     analyzers = {}
 
-    if config['analyzers']['pylint']:
-        from analyzers.pylint_analyzer import PylintAnalyzer
-        analyzers['pylint'] = PylintAnalyzer()
-
-    if config['analyzers']['flake8']:
-        from analyzers.flake8_analyzer import Flake8Analyzer
-        analyzers['flake8'] = Flake8Analyzer()
-
-    if config['analyzers'].get('bandit', True):  # Add Bandit support by default
-        from analyzers.bandit_analyzer import BanditAnalyzer
-        analyzers['bandit'] = BanditAnalyzer()
-
-    if config['analyzers'].get('mypy', True):  # Add mypy support by default
-        from analyzers.mypy_analyzer import MyPyAnalyzer
-        analyzers['mypy'] = MyPyAnalyzer()
-
-    if config['analyzers'].get('safety', True):
-        from analyzers.safety_analyzer import SafetyAnalyzer
-        analyzers['safety'] = SafetyAnalyzer()
-
-    if config['analyzers'].get('isort', True):
-        from analyzers.isort_analyzer import IsortAnalyzer
-        analyzers['isort'] = IsortAnalyzer()
-
-    if config['analyzers'].get('vulture', True):
-        from analyzers.vulture_analyzer import VultureAnalyzer
-        analyzers['vulture'] = VultureAnalyzer()
+    # if config['analyzers']['pylint']:
+    #     from analyzers.pylint_analyzer import PylintAnalyzer
+    #     analyzers['pylint'] = PylintAnalyzer()
+    #
+    # if config['analyzers']['flake8']:
+    #     from analyzers.flake8_analyzer import Flake8Analyzer
+    #     analyzers['flake8'] = Flake8Analyzer()
+    #
+    # if config['analyzers'].get('bandit', True):  # Add Bandit support by default
+    #     from analyzers.bandit_analyzer import BanditAnalyzer
+    #     analyzers['bandit'] = BanditAnalyzer()
+    #
+    # if config['analyzers'].get('mypy', True):  # Add mypy support by default
+    #     from analyzers.mypy_analyzer import MyPyAnalyzer
+    #     analyzers['mypy'] = MyPyAnalyzer()
+    #
+    # # if config['analyzers'].get('safety', True):
+    # #     from analyzers.safety_analyzer import SafetyAnalyzer
+    # #     analyzers['safety'] = SafetyAnalyzer()
+    #
+    # if config['analyzers'].get('isort', True):
+    #     from analyzers.isort_analyzer import IsortAnalyzer
+    #     analyzers['isort'] = IsortAnalyzer()
+    #
+    # if config['analyzers'].get('vulture', True):
+    #     from analyzers.vulture_analyzer import VultureAnalyzer
+    #     analyzers['vulture'] = VultureAnalyzer()
 
     analysis_results = {}
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
-    input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
+    # input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
     report_type = "html"
+    input_path = "C:\\Users\\Richa\\PycharmProjects\\Blog_Platform"
 
     try:
         if os.path.isdir(input_path):
             analysis_results = analyze_directory(input_path, analyzers)
+            if config['analyzers'].get('safety', True):
+                from analyzers.safety_analyzer import SafetyAnalyzer
+                safety_analyzer = SafetyAnalyzer()
+                safety_results = safety_analyzer.analyze(input_path)
+                analysis_results['safety'] = {'safety': safety_results}
             for file_path, results in analysis_results.items():
-                generate_report(report_type, results, os.path.basename(file_path).split(".")[0])
+                if file_path == 'safety':
+                    file_name = 'safety_analysis'
+                else:
+                    file_name = os.path.basename(file_path).split(".")[0]
+                generate_report(report_type, results, file_name)
         elif os.path.isfile(input_path) and input_path.endswith(".py"):
             results = analyze_file(input_path, analyzers)
             generate_report(report_type, results, os.path.basename(input_path).split(".")[0])

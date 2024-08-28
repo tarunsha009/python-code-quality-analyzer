@@ -1,7 +1,7 @@
 # config.yaml
 
 logging:
-  level: INFO
+  level: DEBUG
   file: code_quality_analyzer.log
 
 report:

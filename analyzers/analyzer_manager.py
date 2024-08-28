@@ -18,7 +18,7 @@ def analyze_file(file_path, analyzers):
 
 
 def analyze_directory(directory, analyzers):
-    ignore_dirs = {'.venv', '.idea', '.git', '__pycache__'}
+    ignore_dirs = {'.venv', '.idea', '.git', '__pycache__', 'venv'}
     analysis_results = {}
 
     for root, dirs, files in os.walk(directory):
