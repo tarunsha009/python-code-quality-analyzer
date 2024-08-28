@@ -13,21 +13,24 @@ def analyze_file(file, pylint_analyzer, flake8_analyzer):
     return pylint_results, flake8_results
 
 
-def generate_report(filename, pylint_results, flake8_results, report_type):
+def generate_report(report_type, analysis_results, file_name):
+    report_map = {
+        "html": HTMLReport,
+        "json": JSONReport,
+    }
+
+    report_class = report_map.get(report_type)
+    if not report_class:
+        print(f"Unsupported report type: {report_type}")
+        return
+
+    report = report_class(analysis_results)
     results_dir = "results"
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
-    if report_type == "html":
-        output_file = os.path.join(results_dir, f"{filename}_report.html")
-        html_report = HTMLReport(pylint_results, flake8_results)
-        html_report.generate(output_file)
-    elif report_type == "json":
-        output_file = os.path.join(results_dir, f"{filename}_combined_report.json")
-        json_report = JSONReport({"pylint": pylint_results, "flake8": flake8_results})
-        json_report.generate(output_file)
-    else:
-        print("Unsupported File Type")
+    output_file = os.path.join(results_dir, f"{file_name}_report.{report_type}")
+    report.generate(output_file)
 
 
 def analyze_directory(directory, pylint_analyzer, flake8_analyzer, report_type):
@@ -37,13 +40,16 @@ def analyze_directory(directory, pylint_analyzer, flake8_analyzer, report_type):
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
-                pylint_results, flake8_results = analyze_file(file_path, pylint_analyzer, flake8_analyzer)
-                generate_report(file.split(".")[0], pylint_results, flake8_results, report_type)
+                analysis_results = {}
+                analysis_results['pylint'], analysis_results['flake8'] = analyze_file(file_path, pylint_analyzer, flake8_analyzer)
+                generate_report(report_type, analysis_results, file.split(".")[0])
 
 
 def main():
     pylint_analyzer = PylintAnalyzer()
     flake8_analyzer = Flake8Analyzer()
+
+    analysis_results = {}
 
     input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
     report_type = "html"
@@ -51,8 +57,8 @@ def main():
     if os.path.isdir(input_path):
         analyze_directory(input_path, pylint_analyzer, flake8_analyzer, report_type)
     elif os.path.isfile(input_path) and input_path.endswith(".py"):
-        pylint_results, flake8_results = analyze_file(input_path, pylint_analyzer, flake8_analyzer)
-        generate_report(input_path.split(".")[0], pylint_results, flake8_results, report_type)
+        analysis_results['pylint'], analysis_results['flake8'] = analyze_file(input_path, pylint_analyzer, flake8_analyzer)
+        generate_report(report_type, analysis_results, os.path.basename(input_path).split(".")[0])
     else:
         print("Invalid Path Provided. Please enter a valid Path.")
 
