@@ -8,8 +8,11 @@ def analyze_file(file_path, analyzers):
         try:
             logging.info(f"Running {name} analysis on {file_path}")
             results[name] = analyzer.analyze(file_path)
+        except SystemExit as e:
+            logging.warning(f"{name} exited with code {e.code} for file {file_path}")
         except Exception as e:
             logging.error(f"Error during {name} analysis of {file_path}: {e}")
+            results[name] = f"Error during {name} analysis: {e}"
 
     return results
 

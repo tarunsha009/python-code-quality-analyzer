@@ -9,13 +9,6 @@ from reports.json_report import JSONReport
 from utils.logger import setup_logging
 
 
-# def analyze_file(file, pylint_analyzer, flake8_analyzer):
-#     print(f"Analyzing {file}")
-#     pylint_results = pylint_analyzer.analyze(file)
-#     flake8_results = flake8_analyzer.analyze(file)
-#     return pylint_results, flake8_results
-
-
 def generate_report(report_type, analysis_results, file_name):
     report_map = {
         "html": HTMLReport,
@@ -27,26 +20,25 @@ def generate_report(report_type, analysis_results, file_name):
         logging.error(f"Unsupported report type: {report_type}")
         print(f"Unsupported report type: {report_type}")
         return
+    try:
+        report = report_class(analysis_results)
+        results_dir = "results"
+        if not os.path.exists(results_dir):
+            os.makedirs(results_dir)
 
-    report = report_class(analysis_results)
-    results_dir = "results"
-    if not os.path.exists(results_dir):
-        os.makedirs(results_dir)
+        output_file = os.path.join(results_dir, f"{file_name}_report.{report_type}")
+        report.generate(output_file)
+        logging.info(f"Report generated: {output_file}")
+    except FileNotFoundError as e:
+        logging.error(f"File not found: {e}")
+        print(f"Error: File not found - {e}")
+    except PermissionError as e:
+        logging.error(f"Permission error: {e}")
+        print(f"Error: Permission denied - {e}")
+    except Exception as e:
+        logging.error(f"Failed to generate report for {file_name}: {e}")
+        print(f"Failed to generate report for {file_name}: {e}")
 
-    output_file = os.path.join(results_dir, f"{file_name}_report.{report_type}")
-    report.generate(output_file)
-
-
-# def analyze_directory(directory, pylint_analyzer, flake8_analyzer, report_type):
-#     ignore_dirs = {'.venv', '.idea', '.git', '__pycache__'}
-#     for root, dirs, files in os.walk(directory):
-#         dirs[:] = [d for d in dirs if d not in ignore_dirs]
-#         for file in files:
-#             if file.endswith(".py"):
-#                 file_path = os.path.join(root, file)
-#                 analysis_results = {}
-#                 analysis_results['pylint'], analysis_results['flake8'] = analyze_file(file_path, pylint_analyzer, flake8_analyzer)
-#                 generate_report(report_type, analysis_results, file.split(".")[0])
 
 
 def main():
