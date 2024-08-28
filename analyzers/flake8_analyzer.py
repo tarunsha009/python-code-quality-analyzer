@@ -11,9 +11,3 @@ class Flake8Analyzer:
             command.insert(1, f'--config={self.config_file}')
         result = subprocess.run(command, capture_output=True, text=True)
         return result.stdout
-
-
-if __name__ == "__main__":
-    analyzer = Flake8Analyzer()
-    result = analyzer.analyze("example.py")
-    print(result)

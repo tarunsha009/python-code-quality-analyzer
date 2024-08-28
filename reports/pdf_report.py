@@ -50,6 +50,29 @@ class PDFReport(Report):
                 else:
                     issue_count = len(result.splitlines())
                     pdf.cell(0, 10, f"Flake8: {issue_count} issues found.", ln=True)
+            elif analyzer_name == "safety":
+                try:
+                    if isinstance(result, dict):
+                        vulnerabilities_found = result.get('report_meta', {}).get('vulnerabilities_found', 0)
+                        if vulnerabilities_found == 0:
+                            pdf.cell(0, 10, "Safety: No vulnerabilities found.", ln=True)
+                        else:
+                            pdf.cell(0, 10, f"Safety: {vulnerabilities_found} vulnerabilities found.", ln=True)
+                    else:
+                        pdf.cell(0, 10, f"Safety: Result format not recognized.", ln=True)
+                except Exception as e:
+                    pdf.cell(0, 10, f"Safety: Error processing results: {e}", ln=True)
+            elif analyzer_name == "isort":
+                if "No issues found" in result:
+                    pdf.cell(0, 10, "Isort: No issues found.", ln=True)
+                else:
+                    pdf.cell(0, 10, "Isort: Issues found in import sorting.", ln=True)
+            elif analyzer_name == "vulture":
+                issue_count = len(result.splitlines())
+                if issue_count == 0:
+                    pdf.cell(0, 10, "Vulture: No issues found.", ln=True)
+                else:
+                    pdf.cell(0, 10, f"Vulture: {issue_count} potential dead code issues found.", ln=True)
             pdf.ln(5)
 
         # Detailed Results Section
@@ -71,9 +94,17 @@ class PDFReport(Report):
                         pdf.cell(0, 10, f"{key.replace('_', ' ').title()}: {value}", ln=True)
                 except json.JSONDecodeError:
                     pdf.multi_cell(0, 10, result)
+            elif analyzer_name == "safety":
+                try:
+                    if isinstance(result, dict):
+                        pdf.cell(0, 10, "Vulnerabilities Found:", ln=True)
+                        pdf.multi_cell(0, 10, json.dumps(result, indent=4))
+                    else:
+                        pdf.multi_cell(0, 10, result)
+                except Exception as e:
+                    pdf.cell(0, 10, f"Safety: Error processing results: {e}", ln=True)
             else:
                 pdf.multi_cell(0, 10, result)
             pdf.ln(5)
 
         pdf.output(output_file)
-

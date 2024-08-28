@@ -31,9 +31,3 @@ class SafetyAnalyzer:
         except Exception as e:
             logging.error(f"Error running Safety: {e}")
             return {"errors": [f"Error running Safety: {e}"]}
-
-
-if __name__ == "__main__":
-    abcs = SafetyAnalyzer()
-    result = abcs.analyze("C:\\Users\\Richa\\PycharmProjects\\Blog_Platform")
-    print(r)

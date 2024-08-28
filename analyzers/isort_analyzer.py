@@ -4,6 +4,9 @@ import logging
 
 
 class IsortAnalyzer:
+    def __init__(self, config_file=None):
+        self.config_file = config_file
+
     def analyze(self, file_path):
         print(f"Starting Isort analysis on {file_path}...")
         command = ['isort', '--check-only', '--diff', file_path]

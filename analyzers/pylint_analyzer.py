@@ -24,9 +24,3 @@ class PylintAnalyzer:
         output = pylint_output.getvalue()
         print("Pylint analysis completed.")  # Debugging print
         return output
-
-
-if __name__ == "__main__":
-    analyzer = PylintAnalyzer()
-    result = analyzer.analyze("example.py")
-    print(result)

@@ -43,28 +43,22 @@ def generate_report(report_type, analysis_results, file_name):
         print(f"Failed to generate report for {file_name}: {e}")
 
 
-def main():
-    config = load_config()
-    if config is None:
-        return
-
-    setup_logging(config['logging']['file'], config['logging']['level'])
-
+def setup_analyzers(config):
     analyzers = {}
 
-    if config['analyzers']['pylint']:
+    if config['analyzers'].get('pylint', True):
         from analyzers.pylint_analyzer import PylintAnalyzer
         analyzers['pylint'] = PylintAnalyzer()
 
-    if config['analyzers']['flake8']:
+    if config['analyzers'].get('flake8', True):
         from analyzers.flake8_analyzer import Flake8Analyzer
         analyzers['flake8'] = Flake8Analyzer()
 
-    if config['analyzers'].get('bandit', True):  # Add Bandit support by default
+    if config['analyzers'].get('bandit', True):
         from analyzers.bandit_analyzer import BanditAnalyzer
         analyzers['bandit'] = BanditAnalyzer()
 
-    if config['analyzers'].get('mypy', True):  # Add mypy support by default
+    if config['analyzers'].get('mypy', True):
         from analyzers.mypy_analyzer import MyPyAnalyzer
         analyzers['mypy'] = MyPyAnalyzer()
 
@@ -76,26 +70,36 @@ def main():
         from analyzers.vulture_analyzer import VultureAnalyzer
         analyzers['vulture'] = VultureAnalyzer()
 
+    if config['analyzers'].get('safety', True):
+        from analyzers.safety_analyzer import SafetyAnalyzer
+        analyzers['safety'] = SafetyAnalyzer()
+
+    return analyzers
+
+def main():
+    config = load_config()
+    if config is None:
+        return
+
+    setup_logging(config['logging']['file'], config['logging']['level'])
+
+    analyzers = setup_analyzers(config)
+
     analysis_results = {}
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
-    report_type = "html"
+    report_type = "pdf"
     input_path = "C:\\Users\\Richa\\PycharmProjects\\Blog_Platform"
 
     try:
         if os.path.isdir(input_path):
             analysis_results = analyze_directory(input_path, analyzers)
-            if config['analyzers'].get('safety', True):
-                from analyzers.safety_analyzer import SafetyAnalyzer
-                safety_analyzer = SafetyAnalyzer()
-                safety_results = safety_analyzer.analyze(input_path)
+            if 'safety' in analyzers:
+                safety_results = analyzers['safety'].analyze(input_path)
                 analysis_results['safety'] = {'safety': safety_results}
             for file_path, results in analysis_results.items():
-                if file_path == 'safety':
-                    file_name = 'Packages_analysis'
-                else:
-                    file_name = os.path.basename(file_path).split(".")[0]
+                file_name = 'Packages_analysis' if file_path == 'safety' else os.path.basename(file_path).split(".")[0]
                 generate_report(report_type, results, file_name)
         elif os.path.isfile(input_path) and input_path.endswith(".py"):
             results = analyze_file(input_path, analyzers)
