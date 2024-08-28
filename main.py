@@ -67,15 +67,11 @@ def main():
     # if config['analyzers'].get('mypy', True):  # Add mypy support by default
     #     from analyzers.mypy_analyzer import MyPyAnalyzer
     #     analyzers['mypy'] = MyPyAnalyzer()
-    #
-    # # if config['analyzers'].get('safety', True):
-    # #     from analyzers.safety_analyzer import SafetyAnalyzer
-    # #     analyzers['safety'] = SafetyAnalyzer()
-    #
-    # if config['analyzers'].get('isort', True):
-    #     from analyzers.isort_analyzer import IsortAnalyzer
-    #     analyzers['isort'] = IsortAnalyzer()
-    #
+
+    if config['analyzers'].get('isort', True):
+        from analyzers.isort_analyzer import IsortAnalyzer
+        analyzers['isort'] = IsortAnalyzer()
+
     # if config['analyzers'].get('vulture', True):
     #     from analyzers.vulture_analyzer import VultureAnalyzer
     #     analyzers['vulture'] = VultureAnalyzer()
@@ -97,7 +93,7 @@ def main():
                 analysis_results['safety'] = {'safety': safety_results}
             for file_path, results in analysis_results.items():
                 if file_path == 'safety':
-                    file_name = 'safety_analysis'
+                    file_name = 'Packages_analysis'
                 else:
                     file_name = os.path.basename(file_path).split(".")[0]
                 generate_report(report_type, results, file_name)
