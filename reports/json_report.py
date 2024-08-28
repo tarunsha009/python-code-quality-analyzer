@@ -5,11 +5,10 @@ from reports.report import Report
 class JSONReport(Report):
 
     def generate(self, output_file):
-        with open(output_file, "w") as f:
-            json.dump(self.pylint_data, f, indent=4)
-            json.dump(self.flake8_data, f, indent=4)
+        combined_results = {}
 
+        for analyzer_name, result in self.analysis_results.items():
+            combined_results[analyzer_name] = result
 
-# if __name__ == "__main__":
-#     report = JSONReport({"example": "data"})
-#     report.generate("report.json")
+        with open(output_file, 'w') as file:
+            json.dump(combined_results, file, indent=4)

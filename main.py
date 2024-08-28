@@ -2,8 +2,6 @@ import logging
 import os
 
 from analyzers.analyzer_manager import analyze_directory, analyze_file
-from analyzers.pylint_analyzer import PylintAnalyzer
-from analyzers.flake8_analyzer import Flake8Analyzer
 from reports.html_report import HTMLReport
 from reports.json_report import JSONReport
 from utils.config_loader import load_config
@@ -70,7 +68,7 @@ def main():
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
     input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
-    report_type = "html"
+    report_type = "json"
 
     try:
         if os.path.isdir(input_path):
