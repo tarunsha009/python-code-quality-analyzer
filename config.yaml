@@ -1,0 +1,13 @@
+# config.yaml
+
+logging:
+  level: INFO
+  file: code_quality_analyzer.log
+
+report:
+  default_type: html
+  output_directory: results
+
+analyzers:
+  pylint: true
+  flake8: true

@@ -6,6 +6,7 @@ from analyzers.pylint_analyzer import PylintAnalyzer
 from analyzers.flake8_analyzer import Flake8Analyzer
 from reports.html_report import HTMLReport
 from reports.json_report import JSONReport
+from utils.config_loader import load_config
 from utils.logger import setup_logging
 
 
@@ -40,14 +41,22 @@ def generate_report(report_type, analysis_results, file_name):
         print(f"Failed to generate report for {file_name}: {e}")
 
 
-
 def main():
+    config = load_config()
+    if config is None:
+        return
 
-    setup_logging()
-    analyzers = {
-        "pylint": PylintAnalyzer(),
-        "flake8": Flake8Analyzer(),
-    }
+    setup_logging(config['logging']['file'], config['logging']['level'])
+
+    analyzers = {}
+
+    if config['analyzers']['pylint']:
+        from analyzers.pylint_analyzer import PylintAnalyzer
+        analyzers['pylint'] = PylintAnalyzer()
+
+    if config['analyzers']['flake8']:
+        from analyzers.flake8_analyzer import Flake8Analyzer
+        analyzers['flake8'] = Flake8Analyzer()
 
     analysis_results = {}
 
