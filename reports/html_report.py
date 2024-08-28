@@ -1,3 +1,4 @@
+import json
 from reports.report import Report
 
 
@@ -25,8 +26,35 @@ class HTMLReport(Report):
 
             # Summary Section
             f.write("<div class='summary'><h2>Summary</h2>")
-            for analyzer_name, issue_count in summary.items():
-                f.write(f"<p><span>{analyzer_name.capitalize()} Issues:</span> {issue_count}</p>")
+            for analyzer_name, result in self.analysis_results.items():
+                if analyzer_name == "bandit":
+                    try:
+                        bandit_result = json.loads(result)  # Parse JSON string
+                        issue_count = len(bandit_result.get("results", []))
+                        if issue_count == 0:
+                            f.write(f"<p><span>Bandit:</span> No security issues found.</p>")
+                        else:
+                            f.write(f"<p><span>Bandit:</span> {issue_count} security issues found.</p>")
+                    except json.JSONDecodeError as e:
+                        f.write(f"<p><span>Bandit:</span> Failed to parse Bandit results: {e}</p>")
+                elif analyzer_name == "mypy":
+                    if "Success" in result:
+                        f.write(f"<p><span>MyPy:</span> No type issues found.</p>")
+                    else:
+                        issue_count = len(result.splitlines())
+                        f.write(f"<p><span>MyPy:</span> {issue_count} type issues found.</p>")
+                elif analyzer_name == "pylint":
+                    if "Your code has been rated" in result:
+                        issue_count = sum(1 for line in result.splitlines() if "rated at" not in line and line.strip())
+                        f.write(f"<p><span>Pylint:</span> {issue_count} issues found.</p>")
+                    else:
+                        f.write(f"<p><span>Pylint:</span> Issues found. See detailed report below.</p>")
+                elif analyzer_name == "flake8":
+                    if result.strip() == "":
+                        f.write(f"<p><span>Flake8:</span> No issues found.</p>")
+                    else:
+                        issue_count = len(result.splitlines())
+                        f.write(f"<p><span>Flake8:</span> {issue_count} issues found.</p>")
             f.write("</div>")
 
             # Detailed Results
@@ -40,13 +68,3 @@ class HTMLReport(Report):
             </body>
             </html>
             """)
-
-
-if __name__ == "__main__":
-    # Example usage
-    analysis_results = {
-        "pylint": "Example Pylint data\nError1\nError2",
-        "flake8": "Example Flake8 data\nError1\nError2\nError3",
-    }
-    report = HTMLReport(analysis_results)
-    report.generate("report.html")

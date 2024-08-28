@@ -58,6 +58,14 @@ def main():
         from analyzers.flake8_analyzer import Flake8Analyzer
         analyzers['flake8'] = Flake8Analyzer()
 
+    if config['analyzers'].get('bandit', True):  # Add Bandit support by default
+        from analyzers.bandit_analyzer import BanditAnalyzer
+        analyzers['bandit'] = BanditAnalyzer()
+
+    if config['analyzers'].get('mypy', True):  # Add mypy support by default
+        from analyzers.mypy_analyzer import MyPyAnalyzer
+        analyzers['mypy'] = MyPyAnalyzer()
+
     analysis_results = {}
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"

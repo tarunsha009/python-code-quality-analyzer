@@ -11,3 +11,5 @@ report:
 analyzers:
   pylint: true
   flake8: true
+  bandit: true
+  mypy: true
