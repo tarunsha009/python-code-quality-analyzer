@@ -1,4 +1,7 @@
 # config.yaml
+input:
+  path: "<Path to your folder or file>"
+  report_type: "html"
 
 logging:
   level: DEBUG

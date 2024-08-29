@@ -85,15 +85,13 @@ def main():
 
     setup_logging(config['logging']['file'], config['logging']['level'])
 
-    analyzers = setup_analyzers(config)
+    input_path = config.get('input', {}).get('path', None)
+    report_type = config.get('input', {}).get('report_type', 'html')
 
-    analysis_results = {}
-
-    # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
-    input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\analyzers\\analyzer_manager.py"
-    report_type = "html"
-    # input_path = "C:\\Users\\Richa\\PycharmProjects\\Blog_Platform"
-    # input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer"
+    if not input_path:
+        logging.error("No input path provided in the configuration.")
+        print("No input path provided in the configuration.")
+        return
 
     paths_to_process = []
     ignore_dirs = {'.venv', '.idea', '.git', '__pycache__', 'venv'}
@@ -113,7 +111,8 @@ def main():
         return
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [executor.submit(process_file, setup_analyzers(config), path, report_type) for path in paths_to_process]
+        futures = [executor.submit(process_file, setup_analyzers(config), path, report_type) for path in
+                   paths_to_process]
 
         for future in concurrent.futures.as_completed(futures):
             try:
