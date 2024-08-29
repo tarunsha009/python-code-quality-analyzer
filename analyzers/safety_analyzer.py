@@ -19,7 +19,7 @@ class SafetyAnalyzer:
             logging.info(f"Using requirements file: {requirements_file} for Safety analysis.")
         else:
             logging.info("No requirements.txt found. Analyzing installed packages in the virtual environment.")
-            return
+            return "No requirements.txt found."
         try:
             result = subprocess.run(command, capture_output=True, text=True)
             logging.info("Safety analysis completed.")

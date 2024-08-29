@@ -1,3 +1,4 @@
+import concurrent.futures
 import logging
 import os
 
@@ -76,6 +77,7 @@ def setup_analyzers(config):
 
     return analyzers
 
+
 def main():
     config = load_config()
     if config is None:
@@ -88,10 +90,52 @@ def main():
     analysis_results = {}
 
     # input_path = "C:\\Users\\Richa\\PycharmProjects\\Design Patterns"
-    # input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\example.py"
-    report_type = "pdf"
-    input_path = "C:\\Users\\Richa\\PycharmProjects\\Blog_Platform"
+    input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer\\analyzers\\analyzer_manager.py"
+    report_type = "html"
+    # input_path = "C:\\Users\\Richa\\PycharmProjects\\Blog_Platform"
+    # input_path = "C:\\Users\\Richa\\PycharmProjects\\code_quality_analyzer"
 
+    paths_to_process = []
+    ignore_dirs = {'.venv', '.idea', '.git', '__pycache__', 'venv'}
+    if os.path.isdir(input_path):
+        for root, dirs, files in os.walk(input_path):
+            dirs[:] = [d for d in dirs if d not in ignore_dirs]
+            for file in files:
+                if file.endswith(".py"):
+                    paths_to_process.append(os.path.join(root, file))
+            for dir in dirs:
+                paths_to_process.append(os.path.join(root, dir))
+    elif os.path.isfile(input_path) and input_path.endswith(".py"):
+        paths_to_process.append(input_path)
+    else:
+        logging.error("Invalid path provided. Please enter a valid Python file or directory.")
+        print("Invalid path provided. Please enter a valid Python file or directory.")
+        return
+    #
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     futures = [executor.submit(process_file, analyzers, path, report_type) for path in paths_to_process]
+    #
+    #     for futures in concurrent.futures.as_completed(futures):
+    #         try:
+    #             futures.result()
+    #         except Exception as e:
+    #             logging.error(f"Error processing a path: {e}")
+    #             print(f"Error processing a path: {e}")
+        # Using ProcessPoolExecutor instead of ThreadPoolExecutor
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = [executor.submit(process_file, setup_analyzers(config), path, report_type) for path in paths_to_process]
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                logging.error(f"Error processing a path: {e}")
+                print(f"Error processing a path: {e}")
+    # process_file(analyzers, input_path, report_type)
+    print("abc")
+
+
+def process_file(analyzers, input_path, report_type):
     try:
         if os.path.isdir(input_path):
             analysis_results = analyze_directory(input_path, analyzers)

@@ -86,17 +86,21 @@ class HTMLReport(Report):
                     try:
                         # safety_result = json.loads(result)
                         safety_result = result
-                        vulnerabilities = len(safety_result.get("vulnerabilities", []))
-                        ignored_vulnerabilities = len(safety_result.get("ignored_vulnerabilities", []))
-                        if vulnerabilities == 0 and ignored_vulnerabilities == 0:
+                        if safety_result == 'No requirements.txt found.':
                             f.write(
-                                f"<tr><td>Safety</td><td class='good center'>Good</td><td class='center'>0</td><td>No vulnerabilities found.</td></tr>")
-                        elif vulnerabilities > 0:
-                            f.write(
-                                f"<tr><td>Safety</td><td class='bad center'>Issues</td><td class='center'>{vulnerabilities}</td><td>{vulnerabilities} vulnerabilities found.</td></tr>")
+                                f"<tr><td>Safety</td><td class='warning center'>Warning</td><td class='center'>No Scan Performed</td><td>{safety_result}</td></tr>")
                         else:
-                            f.write(
-                                f"<tr><td>Safety</td><td class='warning center'>Warning</td><td class='center'>{ignored_vulnerabilities}</td><td>{ignored_vulnerabilities} vulnerabilities ignored.</td></tr>")
+                            vulnerabilities = len(safety_result.get("vulnerabilities", []))
+                            ignored_vulnerabilities = len(safety_result.get("ignored_vulnerabilities", []))
+                            if vulnerabilities == 0 and ignored_vulnerabilities == 0:
+                                f.write(
+                                    f"<tr><td>Safety</td><td class='good center'>Good</td><td class='center'>0</td><td>No vulnerabilities found.</td></tr>")
+                            elif vulnerabilities > 0:
+                                f.write(
+                                    f"<tr><td>Safety</td><td class='bad center'>Issues</td><td class='center'>{vulnerabilities}</td><td>{vulnerabilities} vulnerabilities found.</td></tr>")
+                            else:
+                                f.write(
+                                    f"<tr><td>Safety</td><td class='warning center'>Warning</td><td class='center'>{ignored_vulnerabilities}</td><td>{ignored_vulnerabilities} vulnerabilities ignored.</td></tr>")
                     except json.JSONDecodeError as e:
                         f.write(
                             f"<tr><td>Safety</td><td class='warning center'>Warning</td><td class='center'>N/A</td><td>Failed to parse Safety results: {e}</td></tr>")
@@ -141,28 +145,31 @@ class HTMLReport(Report):
                 elif analyzer_name == "safety":
                     try:
                         safety_result = result
-                        f.write(f"Scanned Packages: {result.get('report_meta', {}).get('packages_found', 'N/A')}<br>")
-                        f.write(
-                            f"Vulnerabilities Found: {result.get('report_meta', {}).get('vulnerabilities_found', 'N/A')}<br>")
-                        f.write(
-                            f"Vulnerabilities Ignored: {result.get('report_meta', {}).get('vulnerabilities_ignored', 'N/A')}<br>")
-                        f.write(
-                            f"Remediations Recommended: {result.get('report_meta', {}).get('remediations_recommended', 'N/A')}<br>")
-
-                        vulnerabilities = safety_result.get("vulnerabilities", [])
-                        for vuln in vulnerabilities:
+                        if safety_result == 'No requirements.txt found.':
+                            f.write(f"No Scan Performed on Packages.<br>")
+                        else:
+                            f.write(f"Scanned Packages: {result.get('report_meta', {}).get('packages_found', 'N/A')}<br>")
                             f.write(
-                                f"<strong>Package:</strong> {vuln['package_name']} ({vuln['analyzed_version']})<br>")
-                            f.write(f"<strong>Vulnerability ID:</strong> {vuln['vulnerability_id']}<br>")
-                            f.write(f"<strong>Description:</strong> {vuln['advisory']}<br>")
-                            f.write(f"<strong>CVE:</strong> {vuln['CVE']}<br>")
-                            f.write(f"<strong>More Info:</strong> <a href='{vuln['more_info_url']}'>Link</a><br><br>")
-                        if safety_result.get('ignored_vulnerabilities', []):
-                            f.write("<h3>Ignored Vulnerabilities:</h3>")
-                            for ignored in safety_result['ignored_vulnerabilities']:
-                                f.write(f"Package: {ignored['package_name']} - Reason: {ignored['ignored_reason']}<br>")
+                                f"Vulnerabilities Found: {result.get('report_meta', {}).get('vulnerabilities_found', 'N/A')}<br>")
+                            f.write(
+                                f"Vulnerabilities Ignored: {result.get('report_meta', {}).get('vulnerabilities_ignored', 'N/A')}<br>")
+                            f.write(
+                                f"Remediations Recommended: {result.get('report_meta', {}).get('remediations_recommended', 'N/A')}<br>")
+
+                            vulnerabilities = safety_result.get("vulnerabilities", [])
+                            for vuln in vulnerabilities:
                                 f.write(
-                                    f"<strong>More Info:</strong> <a href='{ignored['more_info_url']}'>Link</a><br><br>")
+                                    f"<strong>Package:</strong> {vuln['package_name']} ({vuln['analyzed_version']})<br>")
+                                f.write(f"<strong>Vulnerability ID:</strong> {vuln['vulnerability_id']}<br>")
+                                f.write(f"<strong>Description:</strong> {vuln['advisory']}<br>")
+                                f.write(f"<strong>CVE:</strong> {vuln['CVE']}<br>")
+                                f.write(f"<strong>More Info:</strong> <a href='{vuln['more_info_url']}'>Link</a><br><br>")
+                            if safety_result.get('ignored_vulnerabilities', []):
+                                f.write("<h3>Ignored Vulnerabilities:</h3>")
+                                for ignored in safety_result['ignored_vulnerabilities']:
+                                    f.write(f"Package: {ignored['package_name']} - Reason: {ignored['ignored_reason']}<br>")
+                                    f.write(
+                                        f"<strong>More Info:</strong> <a href='{ignored['more_info_url']}'>Link</a><br><br>")
                     except json.JSONDecodeError:
                         f.write(result)
 
@@ -192,15 +199,13 @@ class HTMLReport(Report):
                         f.write("</pre>")
 
                 elif analyzer_name == "vulture":
-                    for file_path, vulture_output in self.analysis_results.items():
-                        vulture_output = vulture_output.strip()
-                        if vulture_output:
-                            f.write(f"<h3>{file_path}</h3>")
-                            f.write("<pre class='issue'>")
-                            # Split the string by new lines and write each line to the HTML
-                            for line in vulture_output.splitlines():
-                                f.write(f"{line}<br>")
-                            f.write("</pre>")
+                    if result:
+                        f.write(f"<h3>{analyzer_name}</h3>")
+                        f.write("<pre class='issue'>")
+                        # Split the string by new lines and write each line to the HTML
+                        for line in result.splitlines():
+                            f.write(f"{line}<br>")
+                        f.write("</pre>")
 
                 else:
                     f.write(result)

@@ -16,3 +16,8 @@ analyzers:
   safety: true
   isort: true
   vulture: true
+
+pylint:
+  disable_rules:
+    - logging-fstring-interpolation
+
