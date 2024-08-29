@@ -30,7 +30,7 @@ This project uses several third-party libraries, each of which is licensed separ
    License: [MIT License](https://github.com/PyCQA/pylint/blob/main/LICENSE)
 
 2. **Flake8**  
-   License: [MIT License](https://gitlab.com/pycqa/flake8/-/blob/main/LICENSE)
+   License: [MIT License](https://github.com/PyCQA/flake8/blob/main/LICENSE)
 
 3. **Bandit**  
    License: [Apache License 2.0](https://github.com/PyCQA/bandit/blob/main/LICENSE)
@@ -45,4 +45,4 @@ This project uses several third-party libraries, each of which is licensed separ
    License: [MIT License](https://github.com/PyCQA/isort/blob/main/LICENSE)
 
 7. **Vulture**  
-   License: [MIT License](https://github.com/jendrikseipp/vulture/blob/main/LICENSE)
+   License: [MIT License](https://github.com/jendrikseipp/vulture/blob/main/LICENSE.txt)
