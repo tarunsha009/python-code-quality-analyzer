@@ -111,17 +111,7 @@ def main():
         logging.error("Invalid path provided. Please enter a valid Python file or directory.")
         print("Invalid path provided. Please enter a valid Python file or directory.")
         return
-    #
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     futures = [executor.submit(process_file, analyzers, path, report_type) for path in paths_to_process]
-    #
-    #     for futures in concurrent.futures.as_completed(futures):
-    #         try:
-    #             futures.result()
-    #         except Exception as e:
-    #             logging.error(f"Error processing a path: {e}")
-    #             print(f"Error processing a path: {e}")
-        # Using ProcessPoolExecutor instead of ThreadPoolExecutor
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = [executor.submit(process_file, setup_analyzers(config), path, report_type) for path in paths_to_process]
 
@@ -131,7 +121,6 @@ def main():
             except Exception as e:
                 logging.error(f"Error processing a path: {e}")
                 print(f"Error processing a path: {e}")
-    # process_file(analyzers, input_path, report_type)
     print("abc")
 
 
