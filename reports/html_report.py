@@ -1,4 +1,6 @@
 import json
+import re
+
 from reports.report import Report
 
 
@@ -60,12 +62,24 @@ class HTMLReport(Report):
                         f.write(
                             f"<tr><td>MyPy</td><td class='good center'>Good</td><td class='center'>0</td><td>No type issues found.</td></tr>")
                     else:
-                        issue_count = len(result.splitlines())
+                        match = re.search(r"Found (\d+) error", result)
+                        if match:
+                            issue_count = int(match.group(1))
+                        else:
+                            issue_count = 0
                         f.write(
                             f"<tr><td>MyPy</td><td class='bad center'>Issues</td><td class='center'>{issue_count}</td><td>{issue_count} type issues found.</td></tr>")
 
                 elif analyzer_name == "pylint":
-                    issue_count = sum(1 for line in result.splitlines() if "rated at" not in line and line.strip())
+                    issue_count = 0
+                    capture_issues = False
+                    for line in result.splitlines():
+                        if line.startswith("************* Module"):
+                            capture_issues = True
+                        elif line.startswith("------------------------------------------------------------------"):
+                            capture_issues = False
+                        elif capture_issues and line.strip():
+                            issue_count += 1
                     if issue_count == 0:
                         f.write(
                             f"<tr><td>Pylint</td><td class='good center'>Good</td><td class='center'>0</td><td>No issues found.</td></tr>")
@@ -114,7 +128,8 @@ class HTMLReport(Report):
                             f"<tr><td>Isort</td><td class='bad center'>Issues</td><td class='center'>Issues found</td><td>Issues found in import sorting.</td></tr>")
 
                 elif analyzer_name == "vulture":
-                    total_issues = sum(1 for result in self.analysis_results.values() if result.strip())
+                    issue_lines = [line for line in result.splitlines() if line.strip()]
+                    total_issues = len(issue_lines)
 
                     if total_issues == 0:
                         f.write(
@@ -175,8 +190,11 @@ class HTMLReport(Report):
 
                 elif analyzer_name == "isort":
                     if "No issues found" in result:
-                        f.write(
-                            f"<tr><td>Isort</td><td class='good center'>Good</td><td class='center'>0</td><td>Imports are correctly sorted.</td></tr>")
+                        f.write("<pre class='issue'>")
+                        f.write(f"Imports are correctly sorted.<br>")
+                        f.write("</pre>")
+                        # f.write(
+                        #     f"<tr><td>Isort</td><td class='good center'>Good</td><td class='center'>0</td><td>Imports are correctly sorted.</td></tr>")
                     else:
                         f.write(
                             f"<tr><td>Isort</td><td class='bad center'>Issues</td><td class='center'>Issues found</td><td>Issues found in import sorting.</td></tr>")
@@ -200,9 +218,7 @@ class HTMLReport(Report):
 
                 elif analyzer_name == "vulture":
                     if result:
-                        f.write(f"<h3>{analyzer_name}</h3>")
                         f.write("<pre class='issue'>")
-                        # Split the string by new lines and write each line to the HTML
                         for line in result.splitlines():
                             f.write(f"{line}<br>")
                         f.write("</pre>")

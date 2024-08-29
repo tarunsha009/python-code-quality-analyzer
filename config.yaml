@@ -10,8 +10,8 @@ report:
 
 analyzers:
   pylint: true
-  flake8: true
-  bandit: true
+  flake8: false
+  bandit: false
   mypy: true
   safety: true
   isort: true
